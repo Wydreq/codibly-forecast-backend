@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/codibly-forecast.props" />
+</Project>

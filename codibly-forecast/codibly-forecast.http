@@ -1,0 +1,6 @@
+@codibly_forecast_HostAddress = http://localhost:5285
+
+GET {{codibly_forecast_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
