@@ -12,13 +12,12 @@ WORKDIR /src
 COPY ["codibly-forecast.csproj", "codibly-forecast/"]
 RUN dotnet restore "codibly-forecast/codibly-forecast.csproj"
 COPY . .
-WORKDIR "/src/codibly-forecast"
-RUN dotnet build "codibly-forecast.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "codibly-forecast/codibly-forecast.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "codibly-forecast.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "codibly-forecast/codibly-forecast.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 
 FROM base AS final
