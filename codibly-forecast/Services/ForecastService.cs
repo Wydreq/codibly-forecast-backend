@@ -3,6 +3,7 @@ using System.Text.Json;
 using AutoMapper;
 using codibly_forecast.Exceptions;
 using codibly_forecast.Models;
+using codibly_forecast.Validators;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace codibly_forecast.Services;
@@ -34,26 +35,7 @@ public class ForecastService : IForecastService
 
     public async Task<List<EnergyResultDto>> GetWeatherDataAsync(double latitude, double longitude)
     {
-        if (latitude == null || longitude == null)
-        {
-            throw new BadRequestException("Latitude or longitude cannot be null.");
-        }
-
-        if (!(latitude is double) || !(longitude is double))
-        {
-            throw new BadRequestException("Latitude and longitude must be of type double.");
-        }
-
-        if (latitude < -90 || latitude > 90)
-        {
-            throw new BadRequestException("Latitude must be between -90 and 90 degrees.");
-        }
-
-        if (longitude < -180 || longitude > 180)
-        {
-            throw new BadRequestException("Longitude must be between -180 and 180 degrees.");
-        }
-
+        CoordinatesValidator.ValidateCoordinates(latitude, longitude);
         var query = new Dictionary<string, string>()
         {
             ["latitude"] = latitude.ToString(CultureInfo.InvariantCulture),
