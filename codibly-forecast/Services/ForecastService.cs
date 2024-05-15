@@ -1,7 +1,9 @@
 using System.Globalization;
 using System.Text.Json;
+using AutoMapper;
 using codibly_forecast.Exceptions;
 using codibly_forecast.Models;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace codibly_forecast.Services;
 
@@ -9,12 +11,17 @@ public class ForecastService : IForecastService
 {
     private readonly HttpClient _httpClient;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IMapper _mapper;
+    private readonly IConfiguration _configuration;
     private readonly JsonSerializerOptions _options;
 
-    public ForecastService(HttpClient httpClient, IHttpClientFactory httpClientFactory)
+    public ForecastService(HttpClient httpClient, IHttpClientFactory httpClientFactory, IMapper mapper,
+        IConfiguration configuration)
     {
         _httpClient = httpClient;
         _httpClientFactory = httpClientFactory;
+        _mapper = mapper;
+        _configuration = configuration;
         _options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     }
 
@@ -47,35 +54,33 @@ public class ForecastService : IForecastService
             throw new BadRequestException("Longitude must be between -180 and 180 degrees.");
         }
 
-        string apiUrl =
-            $"https://api.open-meteo.com/v1/forecast?latitude={latitude.ToString(CultureInfo.InvariantCulture)}&longitude={longitude.ToString(CultureInfo.InvariantCulture)}&daily=weather_code,sunshine_duration,temperature_2m_min,temperature_2m_max";
+        var query = new Dictionary<string, string>()
+        {
+            ["latitude"] = latitude.ToString(CultureInfo.InvariantCulture),
+            ["longitude"] = longitude.ToString(CultureInfo.InvariantCulture),
+            ["daily"] = "weather_code,sunshine_duration,temperature_2m_min,temperature_2m_max"
+        };
 
+        var uriBuilder = new UriBuilder(_configuration["baseUrl"]);
+        var apiUrl = QueryHelpers.AddQueryString(uriBuilder.ToString(), query);
         var response = await _httpClient.GetAsync(apiUrl);
 
         if (response.IsSuccessStatusCode)
         {
-            List<EnergyResultDto> energyResults = new List<EnergyResultDto>();
             var jsonContent = await response.Content.ReadAsStringAsync();
-            var weatherData = JsonSerializer.Deserialize<ForecastResultDto>(jsonContent,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var weatherData = JsonSerializer.Deserialize<ForecastResultDto>(jsonContent, _options);
+
+            var energyResults = new List<EnergyResultDto>();
             for (var i = 0; i < 7; i++)
-             {
-                energyResults.Add(new EnergyResultDto()
-                    {
-                        Date = weatherData.daily.time[i],
-                        WeatherCode = weatherData.daily.weather_code[i],
-                        MinTemperature = weatherData.daily.temperature_2m_min[i],
-                        MaxTemperature = weatherData.daily.temperature_2m_max[i],
-                        EstimatedGeneratedEnergy = CalculateEnergy(weatherData.daily.sunshine_duration[i]),
-                        EnergyUnits = new EnergyResultUnitsDto()
-                        {
-                            Date = weatherData.daily_units.time,
-                            WeatherCode = weatherData.daily_units.weather_code,
-                            MinTemperature = weatherData.daily_units.temperature_2m_min,
-                            MaxTemperature = weatherData.daily_units.temperature_2m_max
-                        }
-                    }
-                );
+            {
+                var energyResult = _mapper.Map<EnergyResultDto>(weatherData);
+                energyResult.Date = weatherData.daily.time[i];
+                energyResult.WeatherCode = weatherData.daily.weather_code[i];
+                energyResult.MinTemperature = weatherData.daily.temperature_2m_min[i];
+                energyResult.MaxTemperature = weatherData.daily.temperature_2m_max[i];
+                energyResult.EstimatedGeneratedEnergy = CalculateEnergy(weatherData.daily.sunshine_duration[i]);
+
+                energyResults.Add(energyResult);
             }
 
             return energyResults;

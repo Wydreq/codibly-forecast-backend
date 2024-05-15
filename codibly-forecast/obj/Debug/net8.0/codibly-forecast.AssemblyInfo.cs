@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("codibly-forecast")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9076c94eae85e3af5900b4f375233f31658fa1a3")]
 [assembly: System.Reflection.AssemblyProductAttribute("codibly-forecast")]
 [assembly: System.Reflection.AssemblyTitleAttribute("codibly-forecast")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

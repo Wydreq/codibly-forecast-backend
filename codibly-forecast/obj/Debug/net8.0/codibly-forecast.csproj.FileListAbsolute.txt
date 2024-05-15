@@ -27,3 +27,4 @@
 /Users/bartlomiejwydrzycki/Desktop/Backend/Codibly - be/codibly-forecast/bin/Debug/net8.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 /Users/bartlomiejwydrzycki/Desktop/Backend/Codibly - be/codibly-forecast/obj/Debug/net8.0/codibly-forecast.csproj.AssemblyReference.cache
 /Users/bartlomiejwydrzycki/Desktop/Backend/Codibly - be/codibly-forecast/obj/Debug/net8.0/codibly-forecast.csproj.CopyComplete
+/Users/bartlomiejwydrzycki/Desktop/Backend/Codibly - be/codibly-forecast/obj/Debug/net8.0/codibly-forecast.sourcelink.json
